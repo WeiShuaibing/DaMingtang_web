@@ -511,6 +511,7 @@ export default {
     },
     size_detail_list: function () {
       this.rebuild_size_detail_list_filter()
+      this.rebuild_ma_detail_dingdanshu()
     }
   },
   methods: {
@@ -601,34 +602,40 @@ export default {
             // 尺寸赋值完后需要遍历一遍计算出面积信息
             this.size_detail_list.forEach((item, index, arr) => {
               item.size_area = (item.long_ / 1000) * (item.wide_ / 1000) * item.order_num
-              item.size_area = item.size_area.toFixed(3)
+              item.size_area = item.size_area.toFixed(2)
             })
 
             // 计算每一种物料明细下面的订单数总和
-            this.size_detail_list.forEach((item, index, arr) => {
+            /* this.size_detail_list.forEach((item, index, arr) => {
               let i = item.ma_detail_id
               if (i in this.total_dingdanshu) {
                 this.total_dingdanshu[i] = this.total_dingdanshu[i] + item.order_num
               } else {
                 this.total_dingdanshu[i] = item.order_num
               }
-            })
+            }) */
           } else {
             this.$message.error('物料信息，尺寸信息，加工信息等 加载失败！！！')
           }
         })
     },
     rebuild_ma_detail_dingdanshu () {
+      console.log('从新计算订单数')
       // 这个方法是在添加完明细后来循环计算出当前所选择的物料明细的订单数（面积总和）
       let totalDingdanshu = 0
       this.size_detail_list.forEach((item, index, arr) => {
         if (item.ma_detail_id === this.current_ma_detail_selected.ma_detail_id) {
+          console.log('size_detail_list.size_are: ' + item.size_area)
           totalDingdanshu = totalDingdanshu + parseFloat(item.size_area)
         }
       })
+      totalDingdanshu = totalDingdanshu.toFixed(2)
+      console.log('size循环之后：' + totalDingdanshu)
       this.ma_detail_list.forEach((item, index, arr) => {
         if (item.ma_detail_id === this.current_ma_detail_selected.ma_detail_id) {
+          console.log('totalDingdanshu :' + totalDingdanshu)
           item.ma_dingdanshu = totalDingdanshu
+          console.log('item.ma_dingdanshu:' + item.ma_dingdanshu)
         }
       })
     },
@@ -898,7 +905,7 @@ export default {
       // this.size_form.size_area = this.size_form.long_ * this.size_form.wide_
       // this.addSizelDetailFormVisible = false
       this.size_form.size_area = (this.size_form.long_ / 1000) * (this.size_form.wide_ / 1000) * this.size_form.order_num
-      this.size_form.size_area = parseFloat(this.size_form.size_area.toFixed(3))
+      this.size_form.size_area = parseFloat(this.size_form.size_area.toFixed(2))
       this.addSizelDetailFormVisible = false
       if (this.isEdit) {
         // 将修改过的数据修改到数组ma_detail_list中

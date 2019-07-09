@@ -37,10 +37,9 @@ export default {
   },
   methods: {
     handleSelect (key, keyPath) {
-      console.log(key, keyPath)
+      // console.log(key, keyPath)
     },
     getChildData (msg) {
-      console.log(msg)
       this.comp = msg[0]
     },
     changeBody (msg) {
@@ -51,7 +50,6 @@ export default {
           this.outorderId = msg[2]
         }
       }
-      console.log(msg)
       this.comp = msg[0]
       this.editPage = msg[1]
     }

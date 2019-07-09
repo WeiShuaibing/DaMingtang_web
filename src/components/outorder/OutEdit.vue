@@ -529,7 +529,7 @@ export default {
           // 获取完尺寸信息后，遍历一遍来计算面积
           this.size_detail_list.forEach((item, index, arr) => {
             item.size_area = (item.long_ / 1000) * (item.wide_ / 1000) * item.order_num
-            item.size_area = parseFloat(item.size_area.toFixed(3))
+            item.size_area = parseFloat(item.size_area.toFixed(2))
           })
         })
     },

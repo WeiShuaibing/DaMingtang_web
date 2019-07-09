@@ -687,7 +687,7 @@ export default {
     },
     size_detail_add () {
       this.size_form.size_area = (this.size_form.long_ / 1000) * (this.size_form.wide_ / 1000) * this.size_form.order_num
-      this.size_form.size_area = parseFloat(this.size_form.size_area.toFixed(3))
+      this.size_form.size_area = parseFloat(this.size_form.size_area.toFixed(2))
       this.addSizelDetailFormVisible = false
 
       if (this.isEdit) {

@@ -171,36 +171,20 @@
              <el-table-column property="ma_name" label="未发货"  width="80"></el-table-column>-->
             <el-table-column property="size_remark" label="备注"  ></el-table-column>
           </el-table>
-          <div style="margin-top: 2px;height: 30px;">
+          <div style="margin-top: 2px;height: 40px;">
             <!--<el-button icon="el-icon-plus" size="small" @click="addSizelDetailFormuButton()"></el-button>-->
-            <!--<el-button icon="el-icon-edit" size="small" @click="editSizeDetail()"></el-button>-->
+            <el-button icon="el-icon-edit" size="small" @click="editSizeSendGoods()"></el-button>
             <!--<el-button icon="el-icon-delete" size="small" @click="deleteSizeDetail()"></el-button>-->
           </div>
         </div>
       </div>
       <!--尺寸明细 "添加" start ----------------------------------------------------------------------------->
-      <el-dialog title="创建尺寸明细" :visible.sync="sizelDetailFormVisible">
+      <el-dialog title="修改已出货数" :visible.sync="sizelDetailFormVisible">
         <el-form ref="form" :model="size_form" label-width="120px">
-          <el-form-item label="长度：">
-            <el-input v-model="size_form.long_"></el-input>
-          </el-form-item>
-          <el-form-item label="宽度：">
-            <el-input v-model="size_form.wide_"></el-input>
-          </el-form-item>
-          <el-form-item label="长度(虚)：">
-            <el-input v-model="size_form.long_xu"></el-input>
-          </el-form-item>
-          <el-form-item label="宽度(虚)：">
-            <el-input v-model="size_form.wide_xu"></el-input>
-          </el-form-item>
-          <el-form-item label="数量：">
-            <el-input v-model="size_form.order_num"></el-input>
-          </el-form-item>
-          <el-form-item label="备注：">
-            <el-input v-model="size_form.size_remark"></el-input>
+          <el-form-item label="已出货数：">
+            <el-input v-model="size_form.send_goods"></el-input>
           </el-form-item>
         </el-form>
-
         <div slot="footer" class="dialog-footer">
           <!--<el-button @click="addMaterialDetailFormVisible = false">取 消</el-button>-->
           <el-button @click="sizeFormVisibleCancel()">取 消</el-button>
@@ -320,7 +304,9 @@ export default {
       size_detail_list: [], // 尺寸明细总数组
       size_detail_list_filter: [], // 尺寸明细数据的过滤显示
       sizelDetailFormVisible: false, // 尺寸明细编辑保单的是否可见
-      size_form: {}, // 尺寸表单
+      size_form: {
+        send_goods: 0
+      }, // 尺寸表单
 
       huizong_list: [], // 加工汇总的列表
 
@@ -444,13 +430,34 @@ export default {
       console.log('处理当前加工明细的选择变化')
     },
     size_detail_ensure () {
-      console.log('尺寸明细表单确定按钮')
+      // 修改出货数，并将出货数发送到后端存储起来
+      this.size_detail_list.forEach((item, index, arr) => {
+        if (this.current_size_detail_selected.size_id === item.size_id) {
+          item.send_goods = this.size_form.send_goods
+          this.axios.get(this.GLOBAL.BASE_URL + '/order/updateSizeSendGoods?size_id=' + item.size_id + '&send_goods=' + item.send_goods)
+            .then(res => {
+              if (res.data.code === 20000) {
+                this.$message.success('出货量修改成功')
+                this.sizelDetailFormVisible = false
+              } else {
+                this.$message.error('出货量修改失败')
+              }
+            })
+        }
+      })
     },
     sizeFormVisibleCancel () {
-      console.log('取消显示size_form表单')
+      this.sizelDetailFormVisible = false
     },
-    editSizeDetail () {
-      console.log('编辑尺寸明细逻辑')
+    editSizeSendGoods () {
+      if (this.isEmptyObject(this.current_size_detail_selected)) {
+        this.$message({
+          message: '请选择一条数据',
+          type: 'warning'
+        })
+      } else {
+        this.sizelDetailFormVisible = true
+      }
     },
     handleCurrentChangeSizeDetail (currentRow) {
       this.current_size_detail_selected = currentRow
@@ -510,7 +517,7 @@ export default {
           // 获取完尺寸信息后，遍历一遍来计算面积
           this.size_detail_list.forEach((item, index, arr) => {
             item.size_area = (item.long_ / 1000) * (item.wide_ / 1000) * item.order_num
-            item.size_area = parseFloat(item.size_area.toFixed(3))
+            item.size_area = parseFloat(item.size_area.toFixed(2))
           })
         })
     },
